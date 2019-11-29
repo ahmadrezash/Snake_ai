@@ -1,0 +1,6 @@
+__pycache__/
+socket_tst/
+data/
+notebooks/
+models/
+.idea/
