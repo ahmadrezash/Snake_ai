@@ -3,15 +3,17 @@ import copy
 
 
 class State:
-	snake = None
-	board = None
+	pass
 
-	parent = None
-	last_action = None
 
-	def __init__(self, snake, board):
-		self.board = board
-		self.snake = snake
+# 	snake = None
+# 	board = None
+#
+#
+#
+# 	def __init__(self, snake, board):
+# 		self.board = board
+# 		self.snake = snake
 
 
 class Snake:
@@ -20,12 +22,18 @@ class Snake:
 	movement = 0
 	score = None
 	board = []
+	parent = None
+	last_action = None
 
 	def __init__(self, snake, snake_energy, score, board):
 		self.snake = snake
 		self.snake_energy = snake_energy
 		self.score = score
 		self.board = board
+		# self.parent = self
+
+	def __lt__(self, other):
+		return True if (self.f_cost > other.f_cost) else False
 
 	def edge_conflict(self):
 		game_over = False
@@ -85,3 +93,15 @@ class Snake:
 				continue
 
 		return child
+
+	@property
+	def g_path_cost(self):
+		return self.score
+
+	@property
+	def heuristic(self):
+		return self.snake_energy
+
+	@property
+	def f_cost(self):
+		return self.g_path_cost + self.heuristic

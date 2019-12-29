@@ -1,5 +1,7 @@
 import pygame, random, numpy as np
-  
+from Env import *
+
+# dim=600
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -8,52 +10,71 @@ dirs = [UP, DOWN, RIGHT, LEFT]
 
 
 class state:
-	def __init__(self, board, snake, snake_energy, score):
+    snake = None
+    board = None
+    
+    def __init__(self, snake,board):
 		self.board = board
-		self.score = score
-		self.snake_energy = snake_energy
 		self.snake = snake
 
+
+class Snake:
 	snake = []
 	snake_energy = 0
-	board = None
 	score = None
+	board = []
 
+	def __init__(self, snake, snake_energy, score):
+		self.snake = snake
+		self.snake_energy = snake_energy
+		self.score = score
+		# self.board = board
 
-def is_valid_state(snake):
-	game_over = False
-	if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] < 0 or snake[0][1] < 0:
-		game_over = True
-
-	# Check if the snake has hit itself
-	for i in range(1, len(snake)):
-		if snake[0][0] == snake[i][0] and snake[0][1] == snake[i][1]:
+	def edge_conflict(self):
+		game_over = False
+		snake = self.snake
+		if snake[0][0] == dim or snake[0][1] == dim or snake[0][0] < 0 or snake[0][1] < 0:
 			game_over = True
-	# if game_over()
-	return game_over
+		# print('hit boundaries')
+		return game_over
+
+	def self_conflict(self):
+		game_over = False
+		snake = self.snake
+		for i in range(1, len(snake)):
+			if snake[0][0] == snake[i][0] and snake[0][1] == snake[i][1]:
+				game_over = True
+		# print('hit itself')
+		return game_over
+
+	def check(self):
+		return self.edge_conflict() and self.self_conflict()
+
+	def go_next(self, snake_energy, my_direction):
+		# snake = self.snake
+
+		if self.snake_energy:
+			self.snake_energy -= 1
+			self.snake.append((0, 0))
+		else:
+			if not len(self.snake) == 1:
+				self.snake.pop(len(self.snake) - 1)
+
+		for i in range(len(self.snake) - 1, 0, -1):
+			# self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
+			self.snake[i] = self.snake[i - 1]
+
+		if my_direction == UP:
+			self.snake[0] = (self.snake[0][0], self.snake[0][1] - scale)
+		if my_direction == DOWN:
+			self.snake[0] = (self.snake[0][0], self.snake[0][1] + scale)
+		if my_direction == RIGHT:
+			self.snake[0] = (self.snake[0][0] + scale, self.snake[0][1])
+		if my_direction == LEFT:
+			self.snake[0] = (self.snake[0][0] - scale, self.snake[0][1])
 
 
-def after_next_step(snake, snake_energy, my_direction):
-	if snake_energy:
-		snake_energy -= 1
-		snake.append((0, 0))
-	else:
-		if not len(snake) == 1:
-			snake.pop(len(snake) - 1)
-
-	for i in range(len(snake) - 1, 0, -1):
-		snake[i] = (snake[i - 1][0], snake[i - 1][1])
-
-	if my_direction == UP:
-		snake[0] = (snake[0][0], snake[0][1] - 10)
-	if my_direction == DOWN:
-		snake[0] = (snake[0][0], snake[0][1] + 10)
-	if my_direction == RIGHT:
-		snake[0] = (snake[0][0] + 10, snake[0][1])
-	if my_direction == LEFT:
-		snake[0] = (snake[0][0] - 10, snake[0][1])
-
-	return snake, snake_energy
+# return snake, snake_energy
 
 
 def random_agent(board, snake, snake_energy):
@@ -74,6 +95,10 @@ def BFS_agent(state):
 
 
 def agent(board, snake, snake_energy, score):
+	snake = Snake(snake=snake,
+	              snake_energy=snake_energy,
+	              score=score
+	              )
 	node = state(board=board,
 	             snake=snake,
 	             snake_energy=snake_energy,

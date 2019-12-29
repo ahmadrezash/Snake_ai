@@ -1,5 +1,6 @@
 import Env as e
 
+
 # depth = 2
 
 
@@ -28,11 +29,15 @@ def DLS(node, depth):
 		any_remaining = False
 		all_child = node.get_child()
 		for child in all_child:
-			# print(f'score is :{child.score} in depth {child.movement}')
+			print(f'score is :{child.score} in depth {child.movement}')
 			found, remaining = DLS(child, depth - 1)
 			if not found == None:
-				if hasattr(found.parent,'parent'):
+				# if hasattr(found.parent,'parent'):
+				if found.parent.parent:
+					if found.movement < 4:
+						pass
 					return (found.parent, True)
+
 				else:
 					return (found, True)
 			if remaining:

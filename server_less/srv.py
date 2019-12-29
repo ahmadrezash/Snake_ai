@@ -41,6 +41,7 @@ def collision(c1, c2):
 
 
 def refresh_screen():
+
 	global snake, snake_skin, snake_energy, my_direction
 	global clock, font, score, movement, game_over
 
@@ -70,6 +71,7 @@ def refresh_screen():
 	# snake_head = pygame.Surface((e.scale, e.scale))
 
 	snake_head.fill((120, 120, 120))
+	# screen.blit(snake_head, snake.snake[0])
 
 	flag = True
 	for pos in snake.snake:
