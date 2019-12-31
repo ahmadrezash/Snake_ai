@@ -1,5 +1,8 @@
 import Env as e
-import copy
+import copy, random
+import IDS
+import A_star
+import minimax
 
 
 class State:
@@ -24,13 +27,29 @@ class Snake:
 	board = []
 	parent = None
 	last_action = None
+	method_name = ''
+	world = None
 
-	def __init__(self, snake, snake_energy, score, board):
+	def method(self):
+		pass
+
+	def __init__(self, snake, snake_energy, score, board, method, world):
 		self.snake = snake
 		self.snake_energy = snake_energy
 		self.score = score
 		self.board = board
-		# self.parent = self
+		if world:
+			self.world = world
+		if method == 'IDS':
+			self.method = IDS.IDDFS
+		elif method == 'A*':
+			self.method = A_star.a_star_search
+		elif method == 'MINIMAX':
+			self.method = minimax.minimax
+
+	# self.method = method
+
+	# self.parent = self
 
 	def __lt__(self, other):
 		return True if (self.f_cost > other.f_cost) else False
@@ -105,3 +124,39 @@ class Snake:
 	@property
 	def f_cost(self):
 		return self.g_path_cost + self.heuristic
+
+
+def on_grid_random():
+	x = random.randint(3, 8)
+	y = random.randint(3, 8)
+
+	return (x * e.scale, y * e.scale)
+
+
+class World:
+	snakes = []
+	board = None
+	# Nobat Current
+	current_snake = None
+
+	def __init__(self, count, board):
+		self.board = board
+		for i in range(count):
+			self.snakes.append(Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='A*', world=self))
+
+		self.current_snake = self.snakes[0]
+
+	def next_step(self):
+		snake = copy.deepcopy(self.current_snake)
+		# Snake Thinking
+		dir = snake.method(snake)
+		self.current_snake.go_next(dir)
+
+		if snake.check():
+			return False
+
+	def score_check(self):
+		for i in self.snakes:
+			if i.score >= e.score:
+				return True
+		return False

@@ -29,12 +29,14 @@ def BFS_agent(state):
 import IDS
 import A_star
 
+
 # def IDS_agent(snake0):
 # 	return IDS.IDDFS(snake0)
 def agent(snake0):
-	return random_agent(snake0)
-	# return IDS.IDDFS(snake0)
-	# return A_star.a_star_search(snake0)
+	return snake0.method(snake0)
+# return random_agent(snake0)
+# return IDS.IDDFS(snake0)
+# return A_star.a_star_search(snake0)
 
 # def agent(board, snake, snake_energy, score):
 # 	snake = Snake(snake=snake,

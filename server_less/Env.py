@@ -27,5 +27,7 @@ dirs = [UP, DOWN, RIGHT, LEFT]
 
 score = 100
 
-IDS_depth = score//3
+IDS_depth = score // 3
 # IDS_depth = score//5
+
+minimax_depth = score // 3
