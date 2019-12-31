@@ -10,7 +10,7 @@ import copy
 # ============
 import pygame, random, numpy as np
 from snake_agent import agent
-from Snake import Snake, World
+from Snake import World
 from pygame.locals import *
 
 # ===========init game ============
@@ -110,18 +110,19 @@ def init_game():
 	pygame.init()
 	screen = pygame.display.set_mode((e.dim, e.dim))
 	pygame.display.set_caption('Snake With AI =)')
+	font = pygame.font.Font('freesansbold.ttf', 18)
 
 	# Board
 	food_board = np.random.randint(4, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
 
-	snake_skin = pygame.Surface((e.scale, e.scale))
-	snake_head = pygame.Surface((e.scale, e.scale))
+	# snake_skin = pygame.Surface((e.scale, e.scale))
+	# snake_head = pygame.Surface((e.scale, e.scale))
+	#
+	# snake_head.fill((120, 120, 120))  #
+	# snake_skin.fill((255, 255, 255))  # White
+	# snake_energy = 3
 
-	snake_head.fill((120, 120, 120))  #
-	snake_skin.fill((255, 255, 255))  # White
-	snake_energy = 3
-
-	my_direction = LEFT
+	# my_direction = LEFT
 
 	clock = pygame.time.Clock()
 
@@ -142,8 +143,11 @@ def server_program():
 	global host, port
 
 	# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX']
-	world = World(board=food_board, count=1)
-	refresh_screen(world)
+	food_board = np.random.randint(4, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
+	world = World(board=food_board, count=10)
+	# refresh_screen(world)
+	world.refresh_screen(screen,font)
+
 	while True:
 		clock.tick(2)
 
@@ -155,7 +159,8 @@ def server_program():
 		if world.next_step():
 			break
 
-		refresh_screen(world)
+		# refresh_screen(world)
+		world.refresh_screen(screen, font)
 		if world.score_check():
 			break
 

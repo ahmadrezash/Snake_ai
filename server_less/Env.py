@@ -31,3 +31,5 @@ IDS_depth = score // 3
 # IDS_depth = score//5
 
 minimax_depth = score // 3
+
+start_pos = 50

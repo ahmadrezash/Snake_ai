@@ -1,5 +1,5 @@
 import Env as e
-import copy, random
+import copy, random, pygame
 import IDS
 import A_star
 import minimax
@@ -7,6 +7,10 @@ import minimax
 
 class State:
 	pass
+
+
+snake_skin = pygame.Surface((e.scale, e.scale))
+snake_head = pygame.Surface((e.scale, e.scale))
 
 
 # 	snake = None
@@ -38,6 +42,10 @@ class Snake:
 		self.snake_energy = snake_energy
 		self.score = score
 		self.board = board
+
+		self.snake_head = (120, 120, 120)  # Gray
+		self.snake_skin = (255, 255, 255)  # White
+
 		if world:
 			self.world = world
 		if method == 'IDS':
@@ -127,8 +135,8 @@ class Snake:
 
 
 def on_grid_random():
-	x = random.randint(3, 8)
-	y = random.randint(3, 8)
+	x = random.randint(3, e.dim//e.scale)
+	y = random.randint(3, e.dim//e.scale)
 
 	return (x * e.scale, y * e.scale)
 
@@ -142,7 +150,7 @@ class World:
 	def __init__(self, count, board):
 		self.board = board
 		for i in range(count):
-			self.snakes.append(Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='A*', world=self))
+			self.snakes.append(Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='IDS', world=self))
 
 		self.current_snake = self.snakes[0]
 
@@ -151,6 +159,8 @@ class World:
 		# Snake Thinking
 		dir = snake.method(snake)
 		self.current_snake.go_next(dir)
+		index = (self.snakes.index(self.current_snake) + 1) % len(self.snakes)
+		self.current_snake = self.snakes[index]
 
 		if snake.check():
 			return False
@@ -160,3 +170,54 @@ class World:
 			if i.score >= e.score:
 				return True
 		return False
+
+	def refresh_screen(self, screen, font):
+		screen.fill((0, 0, 0))
+
+		# Line
+		for x in range(0, e.dim, e.scale):  # Draw vertical lines
+			pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, e.dim))
+		for y in range(0, e.dim, e.scale):  # Draw vertical lines
+			pygame.draw.line(screen, (40, 40, 40), (0, y), (e.dim, y))
+
+		# Food Board
+		board = self.board.tolist()
+		for i in range(len(board)):
+			for j in range(len(board[0])):
+				food_font = font.render(f'{(board[i][j])}', True, (100, 100, 100))
+				food_rect = food_font.get_rect()
+				food_rect.topleft = (i * e.scale, j * e.scale)
+				screen.blit(food_font, food_rect)
+
+		dis = 0
+		for i in self.snakes:
+			score_font = font.render('Score: %s' % (i.score), True, (255, 255, 255))
+			score_rect = score_font.get_rect()
+			score_rect.topleft = (e.dim - 120, 10 + dis)
+			screen.blit(score_font, score_rect)
+
+			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (255, 255, 255))
+			energy_rect = score_font.get_rect()
+			energy_rect.topleft = (80, 10 + dis)
+			screen.blit(energy_font, energy_rect)
+
+			move_font = font.render('move: %s' % (i.movement), True, (255, 255, 255))
+			move_rect = score_font.get_rect()
+			move_rect.topleft = (250, 10 + dis)
+			screen.blit(move_font, move_rect)
+			dis = dis + 50
+
+		for s in self.snakes:
+			flag = True
+			snake_head.fill(s.snake_head)  # Gray
+			snake_skin.fill(s.snake_skin)  # White
+			for pos in s.snake:
+				if flag:
+					screen.blit(snake_head, pos)
+					flag = False
+				else:
+					screen.blit(snake_skin, pos)
+
+		# -----------------------------------------------------------
+
+		pygame.display.update()

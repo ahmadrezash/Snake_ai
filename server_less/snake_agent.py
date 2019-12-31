@@ -1,6 +1,6 @@
 import pygame, random, numpy as np
 from Env import *
-from Snake import Snake, State
+# from Snake import Snake, State
 import copy
 
 
