@@ -3,6 +3,7 @@ import copy, random, pygame
 import IDS
 import A_star
 import minimax
+import numpy as np
 
 snake_skin = pygame.Surface((e.scale, e.scale))
 snake_head = pygame.Surface((e.scale, e.scale))
@@ -132,6 +133,12 @@ def on_grid_random():
 
 
 class World:
+	color = [
+			((93, 2, 9), (213, 106, 114)),
+			((69, 91, 2), (183, 208, 104)),
+			((6, 33, 62), (77, 108, 143)),
+			((43, 5, 64), (121, 77, 146)),
+	]
 	snakes = []
 	board = None
 	# Nobat Current
@@ -148,13 +155,16 @@ class World:
 			new.last_action = i
 			self.snakes.append(new)
 			id_counter = id_counter + 1
+			index_color = np.random.randint(len(self.color))
+			new.snake_head = self.color[index_color][0]
+			new.snake_skin = self.color[index_color][1]
+			self.color.pop(index_color)
 
 		self.current_snake = self.snakes[0]
 
 	def next_step(self):
 
 		### For Automatic handling
-		# snake = copy.deepcopy(self.current_snake)
 		snake = self.current_snake
 		# Snake Thinking
 		dir = snake.method(snake)
@@ -191,22 +201,22 @@ class World:
 				screen.blit(food_font, food_rect)
 
 		dis = 50
-		score_font = font.render('Turn: %s' % (self.current_snake.id), True, (255, 255, 255))
+		score_font = font.render('Turn: %s' % (self.current_snake.id), True, self.current_snake.snake_skin)
 		score_rect = score_font.get_rect()
 		score_rect.topleft = (50, 10)
 		screen.blit(score_font, score_rect)
 		for i in self.snakes:
-			score_font = font.render('Score: %s' % (i.score), True, (255, 255, 255))
+			score_font = font.render('Score: %s' % (i.score), True, (i.snake_skin))
 			score_rect = score_font.get_rect()
 			score_rect.topright = (e.dim - 120, 10 + dis)
 			screen.blit(score_font, score_rect)
 
-			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (255, 255, 255))
+			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (i.snake_skin))
 			energy_rect = score_font.get_rect()
 			energy_rect.topleft = (80, 10 + dis)
 			screen.blit(energy_font, energy_rect)
 
-			move_font = font.render('move: %s' % (i.movement), True, (255, 255, 255))
+			move_font = font.render('move: %s' % (i.movement), True, (i.snake_skin))
 			move_rect = score_font.get_rect()
 			move_rect.topleft = (250, 10 + dis)
 			screen.blit(move_font, move_rect)
