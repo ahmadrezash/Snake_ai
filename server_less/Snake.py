@@ -21,6 +21,7 @@ class Snake:
 	method_name = ''
 	world = None
 	id = None
+	is_active = True
 
 	def method(self):
 		pass
@@ -174,7 +175,12 @@ class World:
 		self.current_snake = self.snakes[0]
 
 	def next_step(self):
+		if not self.current_snake.is_active:
+			x = list(filter(lambda x: x.id == self.current_snake.id, self.snakes))[0]
+			index = (self.snakes.index(x) + 1) % len(self.snakes)
+			self.current_snake = self.snakes[index]
 
+			return False
 		### For Automatic handling
 		snake = copy.deepcopy(self.current_snake)
 
@@ -189,10 +195,15 @@ class World:
 		return False
 
 	def score_check(self):
+		finished = True
 		for i in self.snakes:
 			if i.score >= e.score:
-				return True
-		return False
+				i.is_active = False
+				finished = finished and True
+			else:
+				finished = finished and False
+
+		return finished
 
 	def refresh_screen(self, screen, font):
 		# screen.fill((0, 0, 0))
@@ -219,22 +230,27 @@ class World:
 		score_rect.topleft = (50, 10)
 		screen.blit(score_font, score_rect)
 		for i in self.snakes:
+			if i.is_active:
+				color = i.snake_skin
+			else:
+				color = (90, 90, 90)
+				# continue
 
 			if self.current_snake.id == i.id:
 				a = arrow(x=-1, y=dis + 3)
 				pygame.draw.polygon(screen, a[0], a[1])
 
-			score_font = font.render('Score: %s' % (i.score), True, (i.snake_skin))
+			score_font = font.render('Score: %s' % (i.score), True, (color))
 			score_rect = score_font.get_rect()
 			score_rect.topleft = (20, 10 + dis)
 			screen.blit(score_font, score_rect)
 
-			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (i.snake_skin))
+			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (color))
 			energy_rect = score_font.get_rect()
 			energy_rect.topleft = (160, 10 + dis)
 			screen.blit(energy_font, energy_rect)
 
-			move_font = font.render('move: %s' % (i.movement), True, (i.snake_skin))
+			move_font = font.render('move: %s' % (i.movement), True, (color))
 			move_rect = score_font.get_rect()
 			move_rect.topleft = (300, 10 + dis)
 			screen.blit(move_font, move_rect)
@@ -246,8 +262,13 @@ class World:
 				screen.blit(snake_skin, (e.dim_score_board + pos[0], pos[1]))
 
 			flag = True
-			snake_head.fill(s.snake_head)  # Gray
-			snake_skin.fill(s.snake_skin)  # White
+			if s.is_active:
+				snake_head.fill(s.snake_head)  # Gray
+				snake_skin.fill(s.snake_skin)  # White
+			else:
+				snake_head.fill((90, 90, 90))  # Gray
+				snake_skin.fill((110, 110, 110))  # White
+
 			for pos in s.snake:
 				if flag:
 					screen.blit(snake_head, (e.dim_score_board + pos[0], pos[1]))

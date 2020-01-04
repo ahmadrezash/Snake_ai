@@ -26,7 +26,7 @@ DOWN = 2
 LEFT = 3
 dirs = [UP, DOWN, RIGHT, LEFT]
 
-score = 30
+score = 10
 
 IDS_depth = score // 3
 # IDS_depth = score//5
