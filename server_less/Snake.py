@@ -11,6 +11,7 @@ snake_head = pygame.Surface((e.scale, e.scale))
 
 class Snake:
 	snake = []
+	footprint = []
 	snake_energy = 0
 	movement = 0
 	score = None
@@ -52,7 +53,7 @@ class Snake:
 	def edge_conflict(self):
 		game_over = False
 		snake = self.snake
-		if snake[0][0] >= e.dim or snake[0][1] >= e.dim or snake[0][0] <= 0 or snake[0][1] <= 0:
+		if snake[0][0] >= e.dim or snake[0][1] >= e.dim or snake[0][0] < 0 or snake[0][1] < 0:
 			game_over = True
 			print('hit boundaries')
 		return game_over
@@ -71,6 +72,8 @@ class Snake:
 
 	def go_next(self, my_direction):
 		self.movement = self.movement + 1
+		# self.footprint.append(self.snake[0])
+
 		if self.snake_energy == 0 and len(self.snake) == 1:
 			self.snake_energy = self.board[self.snake[0][0] // e.scale - 1][self.snake[0][1] // e.scale - 1]
 			self.score = self.score + self.snake_energy * 5 + 3
@@ -80,7 +83,7 @@ class Snake:
 			self.snake.append((0, 0))
 		else:
 			if not len(self.snake) == 1:
-				self.snake.pop(len(self.snake) - 1)
+				old = self.snake.pop(len(self.snake) - 1)
 
 		for i in range(len(self.snake) - 1, 0, -1):
 			self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
@@ -132,12 +135,20 @@ def on_grid_random():
 	return (x * e.scale, y * e.scale)
 
 
+def arrow(x=0, y=0):
+	# return (173, 79, 79), ((0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y), (10 + x, 10 + y))
+	return (250, 250, 250), ((0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y), (10 + x, 10 + y))
+
+
 class World:
 	color = [
-			((93, 2, 9), (213, 106, 114)),
-			((69, 91, 2), (183, 208, 104)),
-			((6, 33, 62), (77, 108, 143)),
-			((43, 5, 64), (121, 77, 146)),
+			((93, 2, 9), (213, 106, 114)),  # 1
+			((69, 91, 2), (183, 208, 104)),  # 2
+			((6, 33, 62), (77, 108, 143)),  # 3
+			((43, 5, 64), (121, 77, 146)),  # 4
+			((58, 4, 0), (241, 157, 150)),  # 5
+			((58, 26, 0), (241, 191, 150)),  # 6
+			((20, 61, 50), (46, 127, 105)),  # 7
 	]
 	snakes = []
 	board = None
@@ -165,7 +176,8 @@ class World:
 	def next_step(self):
 
 		### For Automatic handling
-		snake = self.current_snake
+		snake = copy.deepcopy(self.current_snake)
+
 		# Snake Thinking
 		dir = snake.method(snake)
 		self.current_snake.go_next(dir)
@@ -183,21 +195,22 @@ class World:
 		return False
 
 	def refresh_screen(self, screen, font):
-		screen.fill((0, 0, 0))
+		# screen.fill((0, 0, 0))
+		screen.fill((38, 37, 37))
 
 		# Line
 		for x in range(0, e.dim, e.scale):  # Draw vertical lines
-			pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, e.dim))
+			pygame.draw.line(screen, (60, 60, 60), (e.dim_score_board + x, 0), (e.dim_score_board + x, e.dim))
 		for y in range(0, e.dim, e.scale):  # Draw vertical lines
-			pygame.draw.line(screen, (40, 40, 40), (0, y), (e.dim, y))
+			pygame.draw.line(screen, (60, 60, 60), (e.dim_score_board + 0, y), (e.dim_score_board + e.dim, y))
 
 		# Food Board
 		board = self.board.tolist()
 		for i in range(len(board)):
 			for j in range(len(board[0])):
-				food_font = font.render(f'{(board[i][j])}', True, (100, 100, 100))
+				food_font = font.render(f'{(board[i][j])}', True, (60, 60, 60))
 				food_rect = food_font.get_rect()
-				food_rect.topleft = (i * e.scale, j * e.scale)
+				food_rect.topleft = (e.dim_score_board + i * e.scale, j * e.scale)
 				screen.blit(food_font, food_rect)
 
 		dis = 50
@@ -206,36 +219,45 @@ class World:
 		score_rect.topleft = (50, 10)
 		screen.blit(score_font, score_rect)
 		for i in self.snakes:
+
+			if self.current_snake.id == i.id:
+				a = arrow(x=-1, y=dis + 3)
+				pygame.draw.polygon(screen, a[0], a[1])
+
 			score_font = font.render('Score: %s' % (i.score), True, (i.snake_skin))
 			score_rect = score_font.get_rect()
-			score_rect.topright = (e.dim - 120, 10 + dis)
+			score_rect.topleft = (20, 10 + dis)
 			screen.blit(score_font, score_rect)
 
 			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (i.snake_skin))
 			energy_rect = score_font.get_rect()
-			energy_rect.topleft = (80, 10 + dis)
+			energy_rect.topleft = (160, 10 + dis)
 			screen.blit(energy_font, energy_rect)
 
 			move_font = font.render('move: %s' % (i.movement), True, (i.snake_skin))
 			move_rect = score_font.get_rect()
-			move_rect.topleft = (250, 10 + dis)
+			move_rect.topleft = (300, 10 + dis)
 			screen.blit(move_font, move_rect)
 			dis = dis + 50
 
 		for s in self.snakes:
+			snake_skin.fill((255, 255, 255))  # White
+			for pos in s.footprint:
+				screen.blit(snake_skin, (e.dim_score_board + pos[0], pos[1]))
+
 			flag = True
 			snake_head.fill(s.snake_head)  # Gray
 			snake_skin.fill(s.snake_skin)  # White
 			for pos in s.snake:
 				if flag:
-					screen.blit(snake_head, pos)
+					screen.blit(snake_head, (e.dim_score_board + pos[0], pos[1]))
 					flag = False
 					move_font = font.render('%s' % (s.id), True, (255, 255, 255))
 					move_rect = score_font.get_rect()
-					move_rect.topleft = (pos)
+					move_rect.topleft = ((e.dim_score_board + pos[0], pos[1]))
 					screen.blit(move_font, move_rect)
 				else:
-					screen.blit(snake_skin, pos)
+					screen.blit(snake_skin, (e.dim_score_board + pos[0], pos[1]))
 
 		# -----------------------------------------------------------
 

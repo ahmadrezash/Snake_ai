@@ -11,6 +11,7 @@ class ResponceStat:
 
 
 dim = 700
+dim_score_board = 400
 scale = 20
 
 
@@ -25,7 +26,7 @@ DOWN = 2
 LEFT = 3
 dirs = [UP, DOWN, RIGHT, LEFT]
 
-score = 100
+score = 30
 
 IDS_depth = score // 3
 # IDS_depth = score//5

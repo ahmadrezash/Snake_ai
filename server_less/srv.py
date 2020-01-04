@@ -20,7 +20,7 @@ global screen
 def init_game():
 	global screen, font, clock
 	pygame.init()
-	screen = pygame.display.set_mode((e.dim, e.dim))
+	screen = pygame.display.set_mode((e.dim + e.dim_score_board, e.dim))
 	pygame.display.set_caption('Snake With AI =)')
 	font = pygame.font.Font('freesansbold.ttf', 18)
 
@@ -33,7 +33,7 @@ def server_program():
 
 	# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX']
 	food_board = np.random.randint(4, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
-	world = World(board=food_board, count=4)
+	world = World(board=food_board, count=6)
 	world.refresh_screen(screen, font)
 
 	while True:
@@ -60,7 +60,7 @@ def server_program():
 		game_over_font = pygame.font.Font('freesansbold.ttf', 75)
 		game_over_screen = game_over_font.render('move: {}'.format(world.snakes[0].movement), True, (255, 255, 255))
 		game_over_rect = game_over_screen.get_rect()
-		game_over_rect.midtop = (e.dim / 2, 60)
+		game_over_rect.lefttop = ( 40, 200)
 		screen.blit(game_over_screen, game_over_rect)
 		pygame.display.update()
 		pygame.time.wait(1000)

@@ -1,9 +1,12 @@
 import Env as e
 import math
 
+import copy
+
 
 def minimax(snake_root):
-	w = minimax_func(snake_root.world, me=snake_root, curDepth=2, )
+	snake = copy.deepcopy(snake_root)
+	w = minimax_func(snake.world, me=snake, curDepth=2, )
 
 	return w[1].current_snake.last_action
 
