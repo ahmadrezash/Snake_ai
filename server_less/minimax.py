@@ -3,8 +3,15 @@ import Env as e
 import math
 
 
-def minimax(self, other):
-	minimax_func(self, other,curDepth=4,)
+def minimax(snake_root):
+	w = minimax_func(snake_root.world, me=snake_root, curDepth=2, )
+	# self = w[1]
+	# index = (w[1].current_snake.id - 1) % len(self.snakes)
+	# x = self.snakes[index]
+
+
+	return w[1].current_snake.last_action
+	# return x.last_action
 
 
 # A simple Python3 program to find
@@ -27,28 +34,41 @@ import math
 #         for each child of node do
 #             value := min(value, minimax(child, depth − 1, TRUE))
 #         return value
-def minimax_func(self, root, curDepth, is_max):
+def minimax_func(world_root, me, curDepth):
 	# base case : targetDepth reached
-	if curDepth == e.minimax_depth or root.score > e.score:
-		return root.f_cost, root
+	if curDepth == 0 or world_root.current_snake.score > e.score:
+		return world_root.current_snake.score, world_root
 
-	if is_max:
-		child = self.get_child()
+	child = world_root.get_child()
+
+	if world_root.current_snake.id == me.id:
 		val = -math.inf
-		node = None
+		obj = None
 
 		for i in child:
-			val, node = max(val, minimax_func(root=i, curDepth=curDepth - 1, is_max=False))
-		return val, node.parent
+			res = minimax_func(world_root=i, me=me, curDepth=curDepth - 1)
+			if val < res[0]:
+				val = res[0]
+				obj = res[1]
+		if obj.parent == me.world:
+			return val, obj
+		else:
+			return val, obj.parent
 
 	else:
-		child = root.get_child()
 		val = +math.inf
-		node = None
+		obj = None
 
 		for i in child:
-			val, node = max(val, minimax_func(root=i, curDepth=curDepth - 1, is_max=True))
-		return val, node.parent
+			res = minimax_func(world_root=i, me=me, curDepth=curDepth - 1)
+			if val > res[0]:
+				val = res[0]
+				obj = res[1]
+
+		if obj.parent.parent == me.world:
+			return val, obj
+		else:
+			return val, obj.parent
 
 # Driver code
 # scores = [3, 5, 2, 9, 12, 5, 23, 23]

@@ -144,7 +144,7 @@ def server_program():
 
 	# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX']
 	food_board = np.random.randint(4, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
-	world = World(board=food_board, count=10)
+	world = World(board=food_board, count=2)
 	# refresh_screen(world)
 	world.refresh_screen(screen,font)
 
@@ -157,11 +157,13 @@ def server_program():
 				exit()
 
 		if world.next_step():
+			print('check issue...')
 			break
 
 		# refresh_screen(world)
 		world.refresh_screen(screen, font)
 		if world.score_check():
+			print('score complete...')
 			break
 
 	# =====
