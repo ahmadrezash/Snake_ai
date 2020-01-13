@@ -26,11 +26,12 @@ DOWN = 2
 LEFT = 3
 dirs = [UP, DOWN, RIGHT, LEFT]
 
-score = 10
+score = 100
 
 IDS_depth = score // 3
 # IDS_depth = score//5
-
+#
 minimax_depth = score // 3
+minimax_depth = 2
 
 start_pos = 50

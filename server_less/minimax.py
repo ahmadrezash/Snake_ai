@@ -6,7 +6,7 @@ import copy
 
 def minimax(snake_root):
 	snake = copy.deepcopy(snake_root)
-	w = minimax_func(snake.world, me=snake, curDepth=2, )
+	w = minimax_func(snake.world, me=snake, curDepth=e.minimax_depth)
 
 	return w[1].current_snake.last_action
 
@@ -36,7 +36,7 @@ def minimax_func(world_root, me, curDepth):
 		obj = None
 
 		for i in child:
-			res = minimax_func(world_root=i, me=me, curDepth=curDepth - 1)
+			res = minimax_func(world_root=i, me=me, curDepth=curDepth )
 			if val > res[0]:
 				val = res[0]
 				obj = res[1]

@@ -1,9 +1,12 @@
-import Env as e
-import copy, random, pygame
-import IDS
+import copy
+import random
+
 import A_star
+import Env as e
+import IDS
 import minimax
 import numpy as np
+import pygame
 
 snake_skin = pygame.Surface((e.scale, e.scale))
 snake_head = pygame.Surface((e.scale, e.scale))
@@ -15,7 +18,7 @@ class Snake:
 	snake_energy = 0
 	movement = 0
 	score = None
-	board = []
+	# board = []
 	parent = None
 	last_action = None
 	method_name = ''
@@ -30,7 +33,7 @@ class Snake:
 		self.snake = snake
 		self.snake_energy = snake_energy
 		self.score = score
-		self.board = board
+		# self.board = board
 
 		self.snake_head = (120, 120, 120)  # Gray
 		self.snake_skin = (255, 255, 255)  # White
@@ -76,7 +79,9 @@ class Snake:
 		# self.footprint.append(self.snake[0])
 
 		if self.snake_energy == 0 and len(self.snake) == 1:
-			self.snake_energy = self.board[self.snake[0][0] // e.scale - 1][self.snake[0][1] // e.scale - 1]
+			x = self.snake[0][0] // e.scale - 1
+			y = self.snake[0][1] // e.scale - 1
+			self.snake_energy = self.world.get_food_energy(x, y)
 			self.score = self.score + self.snake_energy * 5 + 3
 
 		if self.snake_energy:
@@ -158,10 +163,15 @@ class World:
 	parent = None
 	last_action = 1000
 
-	def __init__(self, count, board):
-		self.board = board
+	def __init__(self, count=2, board=[]):
+		if board:
+			self.board = board
+		else:
+			self.board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
+
 		id_counter = 0
 		for i in range(count):
+			# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX']
 			new = Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='MINIMAX', world=self)
 			new.id = id_counter
 			new.last_action = i
@@ -173,6 +183,10 @@ class World:
 			self.color.pop(index_color)
 
 		self.current_snake = self.snakes[0]
+
+	def get_food_energy(self, x, y):
+		val = self.board[x][y]
+		return val
 
 	def next_step(self):
 		if not self.current_snake.is_active:
@@ -234,7 +248,7 @@ class World:
 				color = i.snake_skin
 			else:
 				color = (90, 90, 90)
-				# continue
+			# continue
 
 			if self.current_snake.id == i.id:
 				a = arrow(x=-1, y=dis + 3)
@@ -292,13 +306,33 @@ class World:
 			res = world.current_snake.check()
 			# print(f'res is {res}')
 			if res:
-				print(f'res is {res}')
+				pass
+			# print(f'res is {res}')
 			if not res:
 				world.parent = self
 				world.last_action = i
 				child.append(world)
 			else:
 				del world
-		print(f'{len(child)}-------')
+		# print(f'{len(child)}-------')
 
 		return child
+
+
+class StocasticWorld(World):
+	bord_prob = []
+
+	def __init__(self, count=2, board=[]):
+		super().__init__(count, board)
+		x = int(e.dim / e.scale)
+		self.bord_prob = np.random.rand(x, x)
+
+	def get_food_energy(self, x, y):
+		my_chance = np.random.random(1)[0]
+		food_prob = self.bord_prob[x][y]
+
+		if my_chance < food_prob:
+			val = self.board[x][y]
+		else:
+			val = 0
+		return val

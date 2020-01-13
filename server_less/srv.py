@@ -10,7 +10,7 @@ import copy
 # ============
 import pygame, random, numpy as np
 from snake_agent import agent
-from Snake import World
+from Snake import World,StocasticWorld
 from pygame.locals import *
 
 # ===========init game ============
@@ -32,8 +32,10 @@ def server_program():
 	global screen, font, clock
 
 	# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX']
-	food_board = np.random.randint(4, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
-	world = World(board=food_board, count=7)
+	food_board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
+	# world = World(board=food_board, count=7)
+	# world = World(count=7)
+	world = StocasticWorld(count=7)
 	world.refresh_screen(screen, font)
 
 	while True:
