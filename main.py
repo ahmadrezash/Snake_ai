@@ -83,7 +83,7 @@ while score <= 200:
 		if not len(snake) == 1:
 			snake.pop(len(snake) - 1)
 	# Check if snake collided with boundaries
-	if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] < 0 or snake[0][1] < 0:
+	if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] <-10 or snake[0][1] < -10:
 		game_over = True
 		print('hit boundaries')
 		break
