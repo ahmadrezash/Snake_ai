@@ -33,5 +33,6 @@ IDS_depth = score // 3
 #
 minimax_depth = score // 3
 minimax_depth = 2
+alpha_beta_depth = 4
 
 start_pos = 50

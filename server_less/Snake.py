@@ -1,15 +1,30 @@
 import copy
 import random
 
+import numpy as np
+import pygame
+
 import A_star
 import Env as e
 import IDS
 import minimax
-import numpy as np
-import pygame
 
 snake_skin = pygame.Surface((e.scale, e.scale))
 snake_head = pygame.Surface((e.scale, e.scale))
+
+
+def on_grid_random():
+	x = random.randint(3, e.dim // e.scale - 3)
+	y = random.randint(3, e.dim // e.scale - 3)
+
+	return (x * e.scale, y * e.scale)
+
+
+def arrow(x=0, y=0):
+	# return (173, 79, 79), ((0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y), (10 + x, 10 + y))
+	return (250, 250, 250), (
+			(0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y),
+			(10 + x, 10 + y))
 
 
 class Snake:
@@ -49,9 +64,9 @@ class Snake:
 		elif method == 'AlphaBeta':
 			self.method = minimax.alpha_beta
 
-    # self.method = method
+	# self.method = method
 
-    # self.parent = self
+	# self.parent = self
 
 	def __lt__(self, other):
 		return True if (self.f_cost > other.f_cost) else False
@@ -64,21 +79,39 @@ class Snake:
 			print('hit boundaries')
 		return game_over
 
+	# def other_snake_conflict(self, other):
+	# 	snake = self.snake
+	# 	for i in range(1, len(snake)):
+	# 		if snake[0][0] == other[i][0] and snake[0][1] == other[i][1]:
+	# 			self.score -= 0.5
+	# 			print('hit')
+	#
+	# 	return False
+
 	def self_conflict(self):
 		game_over = False
 		snake = self.snake
 		for i in range(1, len(snake)):
 			if snake[0][0] == snake[i][0] and snake[0][1] == snake[i][1]:
+				# self.score -= 0.25
 				game_over = True
 				print('hit itself')
 		return game_over
 
-    def check(self):
-        return self.edge_conflict() or self.self_conflict() or self.check_snakes_conflict()
+	def check(self):
+		return self.edge_conflict() or self.self_conflict()
 
-    # def check_snakes_conflict(self):
-    #     for i in self.snake:
-    #         self.other_snake_conflict(i, e)
+	@property
+	def get_score(self):
+		return self.score
+
+	# return self.edge_conflict() or self.self_conflict() or self.check_snakes_conflict()
+
+	# def check_snakes_conflict(self):
+	# 	pass
+
+	# for i in self.snake:
+	# 	self.other_snake_conflict(i, e)
 
 	def go_next(self, my_direction):
 		self.movement = self.movement + 1
@@ -100,26 +133,26 @@ class Snake:
 		for i in range(len(self.snake) - 1, 0, -1):
 			self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
 
-        if my_direction == e.UP:
-            self.snake[0] = (self.snake[0][0], self.snake[0][1] - e.scale)
-            if self.last_action is not None and self.last_action != my_direction:
-                self.score -= 0.25
-            self.last_action = e.UP
-        if my_direction == e.DOWN:
-            self.snake[0] = (self.snake[0][0], self.snake[0][1] + e.scale)
-            if self.last_action is not None and self.last_action != my_direction:
-                self.score -= 0.25
-            self.last_action = e.DOWN
-        if my_direction == e.RIGHT:
-            self.snake[0] = (self.snake[0][0] + e.scale, self.snake[0][1])
-            if self.last_action is not None and self.last_action != my_direction:
-                self.score -= 0.25
-            self.last_action = e.RIGHT
-        if my_direction == e.LEFT:
-            self.snake[0] = (self.snake[0][0] - e.scale, self.snake[0][1])
-            if self.last_action is not None and self.last_action != my_direction:
-                self.score -= 0.25
-            self.last_action = e.LEFT
+		if my_direction == e.UP:
+			self.snake[0] = (self.snake[0][0], self.snake[0][1] - e.scale)
+			# if self.last_action is not None and self.last_action != my_direction:
+			# 	self.score -= 0.25
+			self.last_action = e.UP
+		if my_direction == e.DOWN:
+			self.snake[0] = (self.snake[0][0], self.snake[0][1] + e.scale)
+			# if self.last_action is not None and self.last_action != my_direction:
+			# 	self.score -= 0.25
+			self.last_action = e.DOWN
+		if my_direction == e.RIGHT:
+			self.snake[0] = (self.snake[0][0] + e.scale, self.snake[0][1])
+			# if self.last_action is not None and self.last_action != my_direction:
+			# 	self.score -= 0.25
+			self.last_action = e.RIGHT
+		if my_direction == e.LEFT:
+			self.snake[0] = (self.snake[0][0] - e.scale, self.snake[0][1])
+			# if self.last_action is not None and self.last_action != my_direction:
+			# 	self.score -= 0.25
+			self.last_action = e.LEFT
 
 	def get_child(self):
 		child = []
@@ -148,36 +181,24 @@ class Snake:
 		return self.g_path_cost + self.heuristic
 
 
-def on_grid_random():
-	x = random.randint(3, e.dim // e.scale)
-	y = random.randint(3, e.dim // e.scale)
-
-	return (x * e.scale, y * e.scale)
-
-
-def arrow(x=0, y=0):
-	# return (173, 79, 79), ((0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y), (10 + x, 10 + y))
-	return (250, 250, 250), ((0 + x, 10 + y), (0 + x, 20 + y), (10 + x, 20 + y), (10 + x, 25 + y), (20 + x, 15 + y), (10 + x, 5 + y), (10 + x, 10 + y))
-
-
-    class World:
-        color = [
-            ((93, 2, 9), (213, 106, 114)),  # 1
-            ((69, 91, 2), (183, 208, 104)),  # 2
-            ((6, 33, 62), (77, 108, 143)),  # 3
-            ((43, 5, 64), (121, 77, 146)),  # 4
-            ((58, 4, 0), (241, 157, 150)),  # 5
-            ((58, 26, 0), (241, 191, 150)),  # 6
-            ((20, 61, 50), (46, 127, 105)),  # 7
-        ]
-        snakes = []
-        team_one = []
-        team_two = []
-        board = None
-        # Nobat Current
-        current_snake = None
-        parent = None
-        last_action = 1000
+class World:
+	color = [
+			((93, 2, 9), (213, 106, 114)),  # 1
+			((69, 91, 2), (183, 208, 104)),  # 2
+			((6, 33, 62), (77, 108, 143)),  # 3
+			((43, 5, 64), (121, 77, 146)),  # 4
+			((58, 4, 0), (241, 157, 150)),  # 5
+			((58, 26, 0), (241, 191, 150)),  # 6
+			((20, 61, 50), (46, 127, 105)),  # 7
+	]
+	snakes = []
+	team_one = []
+	team_two = []
+	board = None
+	# Nobat Current
+	current_snake = None
+	parent = None
+	last_action = 1000
 
 	def __init__(self, count=2, board=[]):
 		if board:
@@ -185,23 +206,23 @@ def arrow(x=0, y=0):
 		else:
 			self.board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
 
-        id_counter = 0
-        for i in range(count):
-	        # CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX' , 'AlphaBeta' ]
-	        new = Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='MINIMAX',
-                        world=self)
-            new.id = id_counter
-            new.last_action = i
-            if id_counter % 2 ==1:
-                self.team_one.append(new)
-            else:
-                self.team_two.append(new)
-            self.snakes.append(new)
-            id_counter = id_counter + 1
-            index_color = np.random.randint(len(self.color))
-            new.snake_head = self.color[index_color][0]
-            new.snake_skin = self.color[index_color][1]
-            self.color.pop(index_color)
+		id_counter = 0
+		for i in range(count):
+			# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX', 'AlphaBeta']
+			new = Snake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='AlphaBeta',
+			            world=self)
+			new.id = id_counter
+			new.last_action = i
+			if id_counter % 2 == 1:
+				self.team_one.append(new)
+			else:
+				self.team_two.append(new)
+			self.snakes.append(new)
+			id_counter = id_counter + 1
+			index_color = np.random.randint(len(self.color))
+			new.snake_head = self.color[index_color][0]
+			new.snake_skin = self.color[index_color][1]
+			self.color.pop(index_color)
 
 		self.current_snake = self.snakes[0]
 
@@ -245,9 +266,9 @@ def arrow(x=0, y=0):
 		screen.fill((38, 37, 37))
 
 		# Line
-		for x in range(0, e.dim, e.scale):  # Draw vertical lines
+		for x in range(0, e.dim + e.scale, e.scale):  # Draw vertical lines
 			pygame.draw.line(screen, (60, 60, 60), (e.dim_score_board + x, 0), (e.dim_score_board + x, e.dim))
-		for y in range(0, e.dim, e.scale):  # Draw vertical lines
+		for y in range(0, e.dim + e.scale, e.scale):  # Draw vertical lines
 			pygame.draw.line(screen, (60, 60, 60), (e.dim_score_board + 0, y), (e.dim_score_board + e.dim, y))
 
 		# Food Board
@@ -354,7 +375,79 @@ class StocasticWorld(World):
 
 		if my_chance < food_prob:
 			val = self.board[x][y]
-			self.board[x][y] = self.board[x][y] * np.random.uniform(.1, .9)
 		else:
 			val = 0
 		return val
+
+
+class GroupSnake(Snake):
+	group_id = None
+
+	def __init__(self, group_id, **kwargs):
+		super().__init__(**kwargs)
+		self.group_id = group_id
+
+	@property
+	def get_score(self):
+		all = self.world.snakes
+
+		def f(x):
+			if x.group_id == self.group_id:
+				return True
+			else:
+				return False
+
+		group_mate = list(filter(f, all))
+		all_score = 0
+		for i in group_mate:
+			all_score += i.score
+		return all_score
+
+
+class GroupWorld(World):
+	groups = []
+
+	def __init__(self, group_count, snake_count, board=None):
+		if board.any():
+			self.board = board
+		else:
+			self.board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
+		self.groups = range(group_count)
+		id_counter = 0
+		self.group_color = []
+		for i in range(group_count):
+			index_color = np.random.randint(len(self.color))
+			self.group_color.append(self.color[index_color])
+			self.color.pop(index_color)
+
+		for i in range(snake_count):
+			# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX', 'AlphaBeta']
+			new = GroupSnake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+
+			new.id = id_counter
+			new.last_action = i
+			self.snakes.append(new)
+			id_counter = id_counter + 1
+			# index_color = np.random.randint(len(self.color))
+			new.snake_head = self.group_color[id_counter % group_count][0]
+			new.snake_skin = self.group_color[id_counter % group_count][1]
+
+			self.current_snake = self.snakes[0]
+
+	def refresh_screen(self, screen, font):
+		super().refresh_screen(screen, font)
+		dis = 50 * (len(self.snakes) + 1)
+		for i in self.groups:
+			color = self.group_color[i][1]
+
+			# if self.current_snake.group_id == i:
+			# 	a = arrow(x=-1, y=dis + 3)
+			# 	pygame.draw.polygon(screen, a[0], a[1])
+
+			score_font = font.render('Score: %s' % (self.snakes[i].get_score), True, (color))
+			score_rect = score_font.get_rect()
+			score_rect.topleft = (160, 10 + dis)
+			screen.blit(score_font, score_rect)
+
+			dis = dis + 50
+		pygame.display.update()

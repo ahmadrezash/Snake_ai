@@ -12,8 +12,8 @@ def minimax(snake_root):
 
 
 def minimax_func(world_root, me, curDepth):
-	if curDepth == 0 or world_root.current_snake.score > e.score:
-		return world_root.current_snake.score, world_root
+	if curDepth == 0 or world_root.current_snake.get_score > e.score:
+		return world_root.current_snake.get_score, world_root
 
 	child = world_root.get_child()
 
@@ -55,8 +55,8 @@ def alpha_beta(snake_root):
 
 
 def alpha_beta_prun(world_root, me, curDepth, alpha, beta):
-	if curDepth == 0 or world_root.current_snake.score > e.score:
-		return world_root.current_snake.score, world_root
+	if curDepth == 0 or world_root.current_snake.get_score > e.score:
+		return world_root.current_snake.get_score, world_root
 
 	child = world_root.get_child()
 

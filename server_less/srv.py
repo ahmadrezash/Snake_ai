@@ -1,17 +1,12 @@
-import socket
-import time, datetime
-import Env as e
-from snake_agent import *
-import json
-# import Snake
-import atexit
-import copy
-
 # ============
-import pygame, random, numpy as np
-from snake_agent import agent
-from Snake import World,StocasticWorld
+import numpy as np
+import pygame
 from pygame.locals import *
+
+import Env as e
+from Snake import GroupWorld
+
+# import Snake
 
 # ===========init game ============
 global screen
@@ -35,7 +30,16 @@ def server_program():
 	food_board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
 	# world = World(board=food_board, count=7)
 	# world = World(count=7)
-	world = StocasticWorld(count=7)
+	# world = StocasticWorld(count=4)
+
+	group_count = 5
+	snake_count = 15
+	# b = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
+	# np.savetxt('./board1.txt', b)
+	board = np.loadtxt('./board1.txt').astype('int')
+	world = GroupWorld(group_count=group_count, snake_count=snake_count, board=board)
+	h = max(int(group_count + snake_count) * 50, int(e.dim))
+	screen = pygame.display.set_mode((e.dim + e.dim_score_board, h))
 	world.refresh_screen(screen, font)
 
 	while True:
