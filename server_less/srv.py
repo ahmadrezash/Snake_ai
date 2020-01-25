@@ -32,13 +32,15 @@ def server_program():
 	# world = World(count=7)
 	# world = StocasticWorld(count=4)
 
-	group_count = 5
-	snake_count = 15
+	group_count = 2
+	snake_count = 2
+	board = None
 	# b = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
 	# np.savetxt('./board1.txt', b)
-	board = np.loadtxt('./board1.txt').astype('int')
-	world = GroupWorld(group_count=group_count, snake_count=snake_count, board=board)
-	h = max(int(group_count + snake_count) * 50, int(e.dim))
+	# board = np.loadtxt('./board1.txt').astype('int')
+	# world = GroupWorld(group_count=group_count, snake_count=snake_count, board=board)
+	world = GroupWorld(group_count=group_count, snake_count=snake_count)
+	h = max(int(group_count + snake_count + 1) * 50, int(e.dim))
 	screen = pygame.display.set_mode((e.dim + e.dim_score_board, h))
 	world.refresh_screen(screen, font)
 

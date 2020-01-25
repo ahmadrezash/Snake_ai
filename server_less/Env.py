@@ -10,9 +10,12 @@ class ResponceStat:
 	}
 
 
-dim = 700
-dim_score_board = 400
-scale = 20
+dimantion = 10
+scale = 70
+
+dim = dimantion * scale
+# dim=200
+dim_score_board = 450
 
 
 class setting:

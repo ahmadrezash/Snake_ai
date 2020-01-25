@@ -253,7 +253,7 @@ class World:
 	def score_check(self):
 		finished = True
 		for i in self.snakes:
-			if i.score >= e.score:
+			if i.get_score >= e.score:
 				i.is_active = False
 				finished = finished and True
 			else:
@@ -296,14 +296,19 @@ class World:
 				a = arrow(x=-1, y=dis + 3)
 				pygame.draw.polygon(screen, a[0], a[1])
 
-			score_font = font.render('Score: %s' % (i.score), True, (color))
+			score_font = font.render('%s .' % (i.id), True, (color))
 			score_rect = score_font.get_rect()
 			score_rect.topleft = (20, 10 + dis)
 			screen.blit(score_font, score_rect)
 
+			score_font = font.render('Score: %s' % (i.score), True, (color))
+			score_rect = score_font.get_rect()
+			score_rect.topleft = (60, 10 + dis)
+			screen.blit(score_font, score_rect)
+
 			energy_font = font.render('Energy: %s' % (i.snake_energy), True, (color))
 			energy_rect = score_font.get_rect()
-			energy_rect.topleft = (160, 10 + dis)
+			energy_rect.topleft = (180, 10 + dis)
 			screen.blit(energy_font, energy_rect)
 
 			move_font = font.render('move: %s' % (i.movement), True, (color))
@@ -408,7 +413,7 @@ class GroupWorld(World):
 	groups = []
 
 	def __init__(self, group_count, snake_count, board=None):
-		if board.any():
+		if board:
 			self.board = board
 		else:
 			self.board = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
@@ -439,7 +444,10 @@ class GroupWorld(World):
 		dis = 50 * (len(self.snakes) + 1)
 		for i in self.groups:
 			color = self.group_color[i][1]
-
+			if self.snakes[i].is_active:
+				color = self.group_color[i][1]
+			else:
+				color = (90, 90, 90)
 			# if self.current_snake.group_id == i:
 			# 	a = arrow(x=-1, y=dis + 3)
 			# 	pygame.draw.polygon(screen, a[0], a[1])
