@@ -2,6 +2,9 @@ import socket
 import time, datetime
 from Env import *
 from snake_agent import *
+import json
+import atexit
+
 # ============
 import pygame, random, numpy as np
 from snake_agent import agent
@@ -16,11 +19,15 @@ global clock, font, score, movement, game_over
 global host, port
 
 
-def on_grid_random():
-	x = random.randint(3, 56)
-	y = random.randint(3, 56)
+# dim = 200
+# scale = 20
 
-	return (x * 10, y * 10)
+
+def on_grid_random():
+	x = random.randint(3, 8)
+	y = random.randint(3, 8)
+
+	return (x * scale, y * scale)
 
 
 def add_to_snake_tail():
@@ -44,7 +51,7 @@ def refresh_screen():
 
 	score_font = font.render('Score: %s' % (score), True, (255, 255, 255))
 	score_rect = score_font.get_rect()
-	score_rect.topleft = (600 - 120, 10)
+	score_rect.topleft = (dim - 120, 10)
 	screen.blit(score_font, score_rect)
 
 	energy_font = font.render('Energy: %s' % (snake_energy), True, (255, 255, 255))
@@ -76,15 +83,16 @@ def init_game():
 	DOWN = 2
 	LEFT = 3
 	pygame.init()
-	screen = pygame.display.set_mode((600, 600))
+	screen = pygame.display.set_mode((dim, dim))
 	pygame.display.set_caption('Snake With AI =)')
 
 	# Board
-	food_board = np.random.randint(9, size=(60, 60))
+	food_board = np.random.randint(9, size=(int(dim / scale), int(dim / scale)))
 
 	snake = [on_grid_random()]
 
-	snake_skin = pygame.Surface((10, 10))
+	# snake_skin = pygame.Surface((10, 10))
+	snake_skin = pygame.Surface((scale, scale))
 	snake_skin.fill((255, 255, 255))  # White
 	snake_energy = 3
 
@@ -126,15 +134,21 @@ def server_program():
 			continue
 		# ======
 		# clock.tick(7)
+		print(data)
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				pygame.quit()
 				exit()
 		if snake_energy == 0 and len(snake) == 1:
-			snake_energy = food_board[snake[0][0] // 10][snake[0][1] // 10]
-			score = score + snake_energy * 5 + 1
+			snake_energy = food_board[snake[0][0] // scale - 1][snake[0][1] // scale - 1]
+			score = score + snake_energy * 5 + 3
 
-		my_direction = agent(food_board.copy(), snake.copy(), snake_energy, score)
+		data = json.loads(data)
+
+		if data['action'] == ActionItem.Next:
+			my_direction = data['next']
+		else:
+			my_direction = agent(food_board.copy(), snake.copy(), snake_energy, score)
 		data = {
 				'food_board': food_board.tolist(),
 		}
@@ -146,7 +160,7 @@ def server_program():
 			if not len(snake) == 1:
 				snake.pop(len(snake) - 1)
 		# Check if snake collided with boundaries
-		if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] < 0 or snake[0][1] < 0:
+		if snake[0][0] == dim or snake[0][1] == dim or snake[0][0] < 0 or snake[0][1] < 0:
 			game_over = True
 			print('hit boundaries')
 			break
@@ -166,28 +180,60 @@ def server_program():
 
 		# Actually make the snake move.
 		if my_direction == UP:
-			snake[0] = (snake[0][0], snake[0][1] - 10)
+			snake[0] = (snake[0][0], snake[0][1] - scale)
 		if my_direction == DOWN:
-			snake[0] = (snake[0][0], snake[0][1] + 10)
+			snake[0] = (snake[0][0], snake[0][1] + scale)
 		if my_direction == RIGHT:
-			snake[0] = (snake[0][0] + 10, snake[0][1])
+			snake[0] = (snake[0][0] + scale, snake[0][1])
 		if my_direction == LEFT:
-			snake[0] = (snake[0][0] - 10, snake[0][1])
+			snake[0] = (snake[0][0] - scale, snake[0][1])
 
 		screen.fill((0, 0, 0))
 
-		for x in range(0, 600, 10):  # Draw vertical lines
-			pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, 600))
-		for y in range(0, 600, 10):  # Draw vertical lines
-			pygame.draw.line(screen, (40, 40, 40), (0, y), (600, y))
+		for x in range(0, dim, scale):  # Draw vertical lines
+			pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, dim))
+		for y in range(0, dim, scale):  # Draw vertical lines
+			pygame.draw.line(screen, (40, 40, 40), (0, y), (dim, y))
 
 		# =====
 
 		# data=str(datetime.datetime.now())
 		refresh_screen()
+		time.sleep(.5)
 		data = 'Next\n'
-		
-		conn.send(data.encode())  # send data to the client
+		data = {
+				'action': ActionItem.Next,
+				'board': food_board.tolist(),
+				'snake': snake,
+				'snake_energy': int(snake_energy),
+				'score': int(score)
+		}
+		data = json.dumps(data)
+		conn.sendall(bytes(json.dumps(data), 'utf-8'))
+	while True:
+		conn.close()
+		print('connection closed...')
+
+		game_over_font = pygame.font.Font('freesansbold.ttf', 75)
+		# game_over_screen = game_over_font.render('Game Over', True, (255, 255, 255))
+		game_over_screen = game_over_font.render('move: {}'.format(movement), True, (255, 255, 255))
+		game_over_rect = game_over_screen.get_rect()
+		game_over_rect.midtop = (dim / 2, 60)
+		screen.blit(game_over_screen, game_over_rect)
+		pygame.display.update()
+		pygame.time.wait(1000)
+		while True:
+			for event in pygame.event.get():
+				if event.type == QUIT:
+					pygame.quit()
+					exit()
+
+	# conn.send(data.encode())  # send data to the client
+	print('connection closed...')
+
+	@atexit.register
+	def f():
+		conn.close()
 
 	conn.close()  # close the connection
 

@@ -64,6 +64,8 @@ class Snake:
 		elif method == 'AlphaBeta':
 			self.method = minimax.alpha_beta
 
+	# self.method = Random.random_agent
+
 	# self.method = method
 
 	# self.parent = self
@@ -115,7 +117,7 @@ class Snake:
 
 	def go_next(self, my_direction):
 		self.movement = self.movement + 1
-		# self.footprint.append(self.snake[0])
+		# self.footprint.append(self.snake[-1])
 
 		if self.snake_energy == 0 and len(self.snake) == 1:
 			x = self.snake[0][0] // e.scale - 1
@@ -125,33 +127,36 @@ class Snake:
 
 		if self.snake_energy:
 			self.snake_energy -= 1
+			# self.footprint.append(self.snake[-1])
 			self.snake.append((0, 0))
 		else:
+			# self.footprint.append(self.snake[-1])
 			if not len(self.snake) == 1:
 				old = self.snake.pop(len(self.snake) - 1)
+		# self.footprint.append(old)
 
 		for i in range(len(self.snake) - 1, 0, -1):
 			self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
 
 		if my_direction == e.UP:
 			self.snake[0] = (self.snake[0][0], self.snake[0][1] - e.scale)
-			# if self.last_action is not None and self.last_action != my_direction:
-			# 	self.score -= 0.25
+			if self.last_action is not None and self.last_action != my_direction:
+				self.score -= 1
 			self.last_action = e.UP
 		if my_direction == e.DOWN:
 			self.snake[0] = (self.snake[0][0], self.snake[0][1] + e.scale)
-			# if self.last_action is not None and self.last_action != my_direction:
-			# 	self.score -= 0.25
+			if self.last_action is not None and self.last_action != my_direction:
+				self.score -= 1
 			self.last_action = e.DOWN
 		if my_direction == e.RIGHT:
 			self.snake[0] = (self.snake[0][0] + e.scale, self.snake[0][1])
-			# if self.last_action is not None and self.last_action != my_direction:
-			# 	self.score -= 0.25
+			if self.last_action is not None and self.last_action != my_direction:
+				self.score -= 1
 			self.last_action = e.RIGHT
 		if my_direction == e.LEFT:
 			self.snake[0] = (self.snake[0][0] - e.scale, self.snake[0][1])
-			# if self.last_action is not None and self.last_action != my_direction:
-			# 	self.score -= 0.25
+			if self.last_action is not None and self.last_action != my_direction:
+				self.score -= 1
 			self.last_action = e.LEFT
 
 	def get_child(self):
@@ -243,6 +248,7 @@ class World:
 		# Snake Thinking
 		dir = snake.method(snake)
 		self.current_snake.go_next(dir)
+		# self.current_snake.footprint.append(self.current_snake.snake[-1])
 		if snake.check():
 			return True
 		x = list(filter(lambda x: x.id == self.current_snake.id, self.snakes))[0]
@@ -428,7 +434,24 @@ class GroupWorld(World):
 		for i in range(snake_count):
 			# CHOOSE FROM: ['A*' , 'IDS', 'MINIMAX', 'AlphaBeta']
 			new = GroupSnake(snake=[on_grid_random()], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
-
+			# if i == 0:
+			# 	new = GroupSnake(snake=[(1 * e.scale, 1 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 1:
+			# 	new = GroupSnake(snake=[(1 * e.scale, 3 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 2:
+			# 	new = GroupSnake(snake=[(1 * e.scale, 5 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 3:
+			# 	new = GroupSnake(snake=[(1 * e.scale, 7 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 4:
+			# 	new = GroupSnake(snake=[(8 * e.scale, 1 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 5:
+			# 	new = GroupSnake(snake=[(8 * e.scale, 3 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 6:
+			# 	new = GroupSnake(snake=[(8 * e.scale, 5 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# elif i == 7:
+			# 	new = GroupSnake(snake=[(8 * e.scale, 7 * e.scale)], snake_energy=0, score=0, board=self.board, method='AlphaBeta', world=self, group_id=id_counter % group_count)
+			# new.snake[0][0] = new.snake[0][0] * e.scale
+			# new.snake[0][1] = new.snake[0][1] * e.scale
 			new.id = id_counter
 			new.last_action = i
 			self.snakes.append(new)

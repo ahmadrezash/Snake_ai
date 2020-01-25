@@ -33,7 +33,7 @@ def server_program():
 	# world = StocasticWorld(count=4)
 
 	group_count = 2
-	snake_count = 2
+	snake_count = 8
 	board = None
 	# b = np.random.randint(9, size=(int(e.dim / e.scale), int(e.dim / e.scale)))
 	# np.savetxt('./board1.txt', b)

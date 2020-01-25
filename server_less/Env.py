@@ -10,8 +10,8 @@ class ResponceStat:
 	}
 
 
-dimantion = 10
-scale = 70
+dimantion = 9
+scale = 40
 
 dim = dimantion * scale
 # dim=200
@@ -29,7 +29,7 @@ DOWN = 2
 LEFT = 3
 dirs = [UP, DOWN, RIGHT, LEFT]
 
-score = 100
+score = 200
 
 IDS_depth = score // 3
 # IDS_depth = score//5
